@@ -1,5 +1,5 @@
 package com.example.projectManagement.enums;
 
 public enum TaskStatus {
-    ACTIVE, ARCHIVED
+    TODO , IN_PROGRESS , IN_REVIEW , DONE
 }

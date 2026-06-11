@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: projectManagement
+  port: 8000
+#  DB Connection related configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5433/projectManagement
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: wefnjsdkcvnjekrawsfndocwneqoafdnoq
+  expiration: 86400000 # 1 Day in ms

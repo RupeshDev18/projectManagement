@@ -2,6 +2,7 @@ package com.example.projectManagement.entity;
 
 
 import com.example.projectManagement.enums.UserRole;
+import com.example.projectManagement.enums.WorkspaceRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,13 +15,21 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Slf4j
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_workspace_user",
+                        columnNames = {"workspace_id", "user_id"}
+                )
+        }
+)
 public class WorkspaceMember {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn
+    @JoinColumn(name = "workspace_id",nullable = false)
     @ManyToOne
     private Workspace workspace;
 
@@ -29,5 +38,5 @@ public class WorkspaceMember {
     private User user;
 
     @Enumerated(value = EnumType.STRING)
-    private UserRole role;
+    private WorkspaceRole role;
 }

@@ -28,9 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         try {
-            // ============================================
             // STEP 1: Extract token from header
-            // ============================================
             String token=extractToken(request.getHeader("Authorization"));
             if(token==null){
                 filterChain.doFilter(request,response);
@@ -38,9 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
 
-            // ============================================
             // STEP 2: Validate JWT token
-            // ============================================
             if(!jwtProvider.validateJWT(token)){
                 log.warn("token validation failed");
                 filterChain.doFilter(request,response);
@@ -49,36 +45,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
 
-            // ============================================
             // STEP 3: Extract email from token
-            // ============================================
             String email= jwtProvider.extractEmail(token);
 
 
-            // ============================================
             // STEP 4: Load UserDetails from database
-            // ============================================
             UserDetails userDetails= customUserDetailsService.loadUserByUsername(email);
 
 
-            // ============================================
             // STEP 5: Create Authentication object with UserDetails
-            // ============================================
             UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
 
 
-            // ============================================
-            // STEP 6: Set request details
-            // ============================================
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-
-            // ============================================
-            // STEP 7: Store in SecurityContext
-            // ============================================
+            // STEP 6: Store authentication object in SecurityContext.
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
 
 
         } catch (Exception ex) {

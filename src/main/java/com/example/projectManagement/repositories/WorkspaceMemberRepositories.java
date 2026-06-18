@@ -1,5 +1,6 @@
 package com.example.projectManagement.repositories;
 
+import com.example.projectManagement.entity.User;
 import com.example.projectManagement.entity.Workspace;
 import com.example.projectManagement.entity.WorkspaceMember;
 import com.example.projectManagement.enums.WorkspaceRole;
@@ -26,4 +27,6 @@ public interface WorkspaceMemberRepositories extends JpaRepository<WorkspaceMemb
 //    List<Workspace> findWorkspacesByUserId(Long userId);
 
     long countByWorkspaceIdAndRole(Long workspaceId, WorkspaceRole role);
+
+    Long user(User user);
 }

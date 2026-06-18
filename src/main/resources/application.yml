@@ -4,9 +4,9 @@ spring:
 
 #  DB Connection related configuration
   datasource:
-    url: jdbc:postgresql://localhost:5433/projectManagement
+    url: jdbc:postgresql://localhost:5432/projectManagement
     username: postgres
-    password: postgres
+    password: sa
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -27,3 +27,10 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

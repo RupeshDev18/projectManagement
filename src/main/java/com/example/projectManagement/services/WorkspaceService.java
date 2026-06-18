@@ -2,7 +2,9 @@ package com.example.projectManagement.services;
 
 
 import com.example.projectManagement.dto.request.CreateWorkSpaceRequest;
+import com.example.projectManagement.dto.request.InviteMemberRequest;
 import com.example.projectManagement.dto.response.CreateWorkSpaceResponse;
+import com.example.projectManagement.dto.response.StandardResponse;
 import com.example.projectManagement.dto.response.WorkspaceResponse;
 import com.example.projectManagement.entity.User;
 import com.example.projectManagement.entity.Workspace;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -47,7 +50,14 @@ public class WorkspaceService {
 
     public List<WorkspaceResponse> getMyWorkspaces(){
         User user=getCurrentUser();
-        workspaceMemberRepositories.findAllByUserId(user.getId());
+        List<WorkspaceMember> workspaceMember=workspaceMemberRepositories.findAllByUserId(user.getId());
+        return workspaceMember.stream().map((member)->
+        {
+            Workspace workspace=member.getWorkspace();
+            return new WorkspaceResponse(
+                    workspace.getId(),workspace.getName(),workspace.getDescription(),member.getRole()
+            );
+        }).toList();
 
     }
 
@@ -70,4 +80,36 @@ public class WorkspaceService {
 
         return new CreateWorkSpaceResponse("Workspace Created Successfully.");
     }
+
+    @Transactional
+    public StandardResponse inviteMember(InviteMemberRequest request){
+
+        Workspace workspace=workspaceRepositories.findById(request.workspaceId()).orElseThrow(()-> new RuntimeException("Workspace doesn't exists"));
+
+        User user=userRepositories.findByEmail(request.email()).orElseThrow(()-> new RuntimeException("User doesn't exists"));
+
+        User currUser=getCurrentUser();
+        WorkspaceMember member=getMemberOrThrow(request.workspaceId(), currUser.getId());
+        if(member.getRole()!=WorkspaceRole.OWNER){
+            throw new RuntimeException("Only Owner can invite members.");
+        }
+
+        if(workspaceMemberRepositories.existsByUserIdAndWorkspaceId(user.getId(),workspace.getId())){
+            throw new RuntimeException("member already in workspace");
+        }
+        WorkspaceMember workspaceMember=new WorkspaceMember();
+        workspaceMember.setUser(user);
+        workspaceMember.setWorkspace(workspace);
+        workspaceMember.setRole(WorkspaceRole.MEMBER);
+
+        workspaceMemberRepositories.save(workspaceMember);
+
+        return new StandardResponse("member invited successfully");
+
+    }
+
+    private WorkspaceMember getMemberOrThrow(Long workspaceId,Long userId){
+        return workspaceMemberRepositories.findByUserIdAndWorkspaceId(userId,workspaceId).orElseThrow(()->new RuntimeException("member doesn't exist."));
+    }
+
 }

@@ -3,6 +3,7 @@ package com.example.projectManagement.services;
 
 import com.example.projectManagement.dto.request.CreateWorkSpaceRequest;
 import com.example.projectManagement.dto.request.InviteMemberRequest;
+import com.example.projectManagement.dto.request.RemoveMemberRequest;
 import com.example.projectManagement.dto.response.CreateWorkSpaceResponse;
 import com.example.projectManagement.dto.response.StandardResponse;
 import com.example.projectManagement.dto.response.WorkspaceResponse;
@@ -82,14 +83,14 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public StandardResponse inviteMember(InviteMemberRequest request){
+    public StandardResponse inviteMember(InviteMemberRequest request,long workspaceId){
 
-        Workspace workspace=workspaceRepositories.findById(request.workspaceId()).orElseThrow(()-> new RuntimeException("Workspace doesn't exists"));
+        Workspace workspace=workspaceRepositories.findById(workspaceId).orElseThrow(()-> new RuntimeException("Workspace doesn't exists"));
 
         User user=userRepositories.findByEmail(request.email()).orElseThrow(()-> new RuntimeException("User doesn't exists"));
 
         User currUser=getCurrentUser();
-        WorkspaceMember member=getMemberOrThrow(request.workspaceId(), currUser.getId());
+        WorkspaceMember member=getMemberOrThrow(workspaceId, currUser.getId());
         if(member.getRole()!=WorkspaceRole.OWNER){
             throw new RuntimeException("Only Owner can invite members.");
         }
@@ -106,6 +107,27 @@ public class WorkspaceService {
 
         return new StandardResponse("member invited successfully");
 
+    }
+
+    @Transactional
+    public StandardResponse removeMember(String email,long workspaceId){
+        User currUser=getCurrentUser();
+        WorkspaceMember workspaceMember=getMemberOrThrow(workspaceId, currUser.getId());
+        if(workspaceMember.getRole()!=WorkspaceRole.OWNER){
+            throw new RuntimeException("Only Owners can remove members");
+        }
+        User user=userRepositories.findByEmail(email).orElseThrow(()-> new RuntimeException("User doesn't exists"));
+
+        if(!workspaceMemberRepositories.existsByUserIdAndWorkspaceId(user.getId(), workspaceId)){
+            throw new RuntimeException("User is not in current workspace");
+        }
+        WorkspaceMember targetMember=getMemberOrThrow(workspaceId, user.getId());
+        if(targetMember.getRole()==WorkspaceRole.OWNER){
+            throw new RuntimeException("Can't remove Owners");
+        }
+        workspaceMemberRepositories.delete(targetMember);
+
+        return new StandardResponse("member removed successfully");
     }
 
     private WorkspaceMember getMemberOrThrow(Long workspaceId,Long userId){

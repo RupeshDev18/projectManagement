@@ -38,7 +38,7 @@ public class WorkspaceService {
         this.userRepositories = userRepositories;
     }
 
-    private User getCurrentUser(){
+    public User getCurrentUser(){
 
         Authentication auth=SecurityContextHolder.getContext().getAuthentication();
 //        CustomUserDetails userDetails=(CustomUserDetails) auth.getPrincipal();
@@ -130,7 +130,7 @@ public class WorkspaceService {
         return new StandardResponse("member removed successfully");
     }
 
-    private WorkspaceMember getMemberOrThrow(Long workspaceId,Long userId){
+    public WorkspaceMember getMemberOrThrow(Long workspaceId,Long userId){
         return workspaceMemberRepositories.findByUserIdAndWorkspaceId(userId,workspaceId).orElseThrow(()->new RuntimeException("member doesn't exist."));
     }
 

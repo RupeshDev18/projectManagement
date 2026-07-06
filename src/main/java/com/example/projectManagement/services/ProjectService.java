@@ -30,15 +30,12 @@ public class ProjectService {
     private final WorkspaceService workspaceService;
     private final ProjectRepositories projectRepositories;
     private final TaskRepositories taskRepositories;
-//    private final WorkspaceRepositories workspaceRepositories;
 
     public ProjectService(WorkspaceService workspaceService
                           ,ProjectRepositories projectRepositories,
-//                          ,WorkspaceRepositories workspaceRepositories
                           TaskRepositories taskRepositories) {
         this.workspaceService = workspaceService;
         this.projectRepositories= projectRepositories;
-//        this.workspaceRepositories=workspaceRepositories;
         this.taskRepositories = taskRepositories;
     }
 
